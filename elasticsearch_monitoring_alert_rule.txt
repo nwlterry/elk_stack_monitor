@@ -1,0 +1,80 @@
+{
+  "_id": "rule:elasticsearch-monitoring-alert",
+  "_type": "rule",
+  "_source": {
+    "type": "rule",
+    "updated_at": "2025-07-03T18:26:00.000Z",
+    "rule": {
+      "name": "Elasticsearch Node Monitoring Alert",
+      "rule_type": "metrics_alert",
+      "consumer": "alerts",
+      "enabled": true,
+      "schedule": {
+        "interval": "1m"
+      },
+      "actions": [
+        {
+          "id": "slack-connector",
+          "group": "metrics.threshold.fired",
+          "params": {
+            "message": "Elasticsearch Alert: \nCluster Health: {{context.hits.0._source.elasticsearch.cluster.stats.status}}\nActive Shards: {{context.hits.0._source.elasticsearch.cluster.health.active_shards}}\nDisk Usage: {{context.value}}% on {{context.group}}\nTimestamp: {{context.timestamp}}"
+          }
+        }
+      ],
+      "params": {
+        "aggType": "custom",
+        "aggParams": {
+          "customMetric": {
+            "type": "agg",
+            "aggregation": "max",
+            "field": "elasticsearch.node.stats.fs.total.total_in_bytes",
+            "id": "1"
+          },
+          "customMetric2": {
+            "type": "agg",
+            "aggregation": "max",
+            "field": "elasticsearch.node.stats.fs.total.available_in_bytes",
+            "id": "2"
+          },
+          "customMetric3": {
+            "type": "bucket_script",
+            "buckets_path": {
+              "total": "1",
+              "available": "2"
+            },
+            "script": "params.total > 0 ? (params.total - params.available) / params.total * 100 : 0",
+            "id": "3"
+          }
+        },
+        "groupBy": "elasticsearch.node.name",
+        "threshold": [85],
+        "comparator": ">",
+        "timeSize": 5,
+        "timeUnit": "m",
+        "index": "metrics-elasticsearch.stack_monitoring*",
+        "metric": "customMetric3"
+      },
+      "notify_when": "onActionGroupChange",
+      "tags": ["elasticsearch", "monitoring", "infrastructure"],
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"metrics-elasticsearch.stack_monitoring*\",\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[]}"
+      }
+    }
+  }
+}
+{
+  "_id": "connector:slack-connector",
+  "_type": "action",
+  "_source": {
+    "type": "action",
+    "updated_at": "2025-07-03T18:26:00.000Z",
+    "action": {
+      "name": "Slack Connector",
+      "actionTypeId": ".slack",
+      "config": {
+        "webhookUrl": "https://hooks.slack.com/services/TXXXXX/BXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX"
+      },
+      "secrets": {}
+    }
+  }
+}

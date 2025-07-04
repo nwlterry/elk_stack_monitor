@@ -1,0 +1,115 @@
+{
+  "_id": "dashboard:elasticsearch-monitoring",
+  "_type": "dashboard",
+  "_source": {
+    "type": "dashboard",
+    "updated_at": "2025-07-03T18:26:00.000Z",
+    "dashboard": {
+      "title": "Elasticsearch Node Monitoring",
+      "description": "Dashboard for monitoring Elasticsearch node status, system uptime, disk usage, cluster health, and shard metrics",
+      "panelsJSON": "[{\"gridData\":{\"x\":0,\"y\":0,\"w\":24,\"h\":4,\"i\":\"1\"},\"type\":\"visualization\",\"id\":\"cluster-health-status\",\"panelIndex\":\"1\"},{\"gridData\":{\"x\":24,\"y\":0,\"w\":24,\"h\":4,\"i\":\"2\"},\"type\":\"visualization\",\"id\":\"shard-count\",\"panelIndex\":\"2\"},{\"gridData\":{\"x\":0,\"y\":4,\"w\":48,\"h\":8,\"i\":\"3\"},\"type\":\"visualization\",\"id\":\"node-status-table\",\"panelIndex\":\"3\"},{\"gridData\":{\"x\":0,\"y\":12,\"w\":24,\"h\":8,\"i\":\"4\"},\"type\":\"visualization\",\"id\":\"disk-usage\",\"panelIndex\":\"4\"},{\"gridData\":{\"x\":24,\"y\":12,\"w\":24,\"h\":8,\"i\":\"5\"},\"type\":\"visualization\",\"id\":\"system-uptime\",\"panelIndex\":\"5\"}]",
+      "optionsJSON": "{\"useMargins\":true,\"syncColors\":true,\"hidePanelTitles\":false}",
+      "version": "8.14.3",
+      "timeRestore": true,
+      "timeTo": "now",
+      "timeFrom": "now-24h",
+      "refreshInterval": {
+        "pause": false,
+        "value": 60000
+      },
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[]}"
+      }
+    }
+  }
+}
+{
+  "_id": "visualization:cluster-health-status",
+  "_type": "visualization",
+  "_source": {
+    "type": "visualization",
+    "updated_at": "2025-07-03T18:26:00.000Z",
+    "visualization": {
+      "title": "Cluster Health Status",
+      "visState": "{\"title\":\"Cluster Health Status\",\"type\":\"metric\",\"params\":{\"type\":\"metric\",\"metric\":{\"field\":\"elasticsearch.cluster.stats.status\",\"aggType\":\"max\",\"label\":\"Cluster Status\"},\"customLabel\":true,\"fontSize\":60,\"colorRules\":[{\"value\":\"green\",\"color\":\"#00ff00\"},{\"value\":\"yellow\",\"color\":\"#ffcc00\"},{\"value\":\"red\",\"color\":\"#ff0000\"}]},\"aggs\":[]}",
+      "uiStateJSON": "{}",
+      "description": "Displays current Elasticsearch cluster health status",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"metrics-elasticsearch.stack_monitoring*\",\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[]}"
+      }
+    }
+  }
+}
+{
+  "_id": "visualization:shard-count",
+  "_type": "visualization",
+  "_source": {
+    "type": "visualization",
+    "updated_at": "2025-07-03T18:26:00.000Z",
+    "visualization": {
+      "title": "Shard Count",
+      "visState": "{\"title\":\"Shard Count\",\"type\":\"metric\",\"params\":{\"type\":\"metric\",\"metric\":{\"field\":\"elasticsearch.cluster.health.active_shards\",\"aggType\":\"sum\",\"label\":\"Active Shards\"},\"customLabel\":true,\"fontSize\":60},\"aggs\":[]}",
+      "uiStateJSON": "{}",
+      "description": "Total number of active shards in the cluster",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"metrics-elasticsearch.stack_monitoring*\",\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[]}"
+      }
+    }
+  }
+}
+{
+  "_id": "visualization:node-status-table",
+  "_type": "visualization",
+  "_source": {
+    "type": "visualization",
+    "updated_at": "2025-07-03T18:26:00.000Z",
+    "visualization": {
+      "title": "Node Status Table",
+      "visState": "{\"title\":\"Node Status Table\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMetricsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"elasticsearch.node.name\",\"size\":50,\"orderBy\":\"_term\"}},{\"id\":\"2\",\"enabled\":true,\"type\":\"max\",\"schema\":\"metric\",\"params\":{\"field\":\"elasticsearch.node.stats.jvm.mem.heap_used_percent\"}},{\"id\":\"3\",\"enabled\":true,\"type\":\"max\",\"schema\":\"metric\",\"params\":{\"field\":\"elasticsearch.node.stats.fs.total.available_in_bytes\"}}]}",
+      "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":0,\"direction\":\"asc\"}}}}",
+      "description": "Table of node names with heap usage and available disk space",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"metrics-elasticsearch.stack_monitoring*\",\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[]}"
+      }
+    }
+  }
+}
+{
+  "_id": "visualization:disk-usage",
+  "_type": "visualization",
+  "_source": {
+    "type": "visualization",
+    "updated_at": "2025-07-03T18:26:00.000Z",
+    "visualization": {
+      "title": "Disk Usage per Node",
+      "visState": "{\"title\":\"Disk Usage per Node\",\"type\":\"tsvb\",\"params\":{\"type\":\"timeseries\",\"timeField\":\"@timestamp\",\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"max\",\"schema\":\"metric\",\"params\":{\"field\":\"elasticsearch.node.stats.fs.total.total_in_bytes\",\"label\":\"Total Bytes\"}},{\"id\":\"2\",\"enabled\":true,\"type\":\"max\",\"schema\":\"metric\",\"params\":{\"field\":\"elasticsearch.node.stats.fs.total.available_in_bytes\",\"label\":\"Available Bytes\"}},{\"id\":\"3\",\"enabled\":true,\"type\":\"bucket_script\",\"schema\":\"metric\",\"params\":{\"buckets_path\":{\"total\":\"1\",\"available\":\"2\"},\"script\":\"params.total > 0 ? (params.total - params.available) / params.total * 100 : 0\",\"label\":\"Disk Usage %\"}},{\"id\":\"4\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"group\",\"params\":{\"field\":\"elasticsearch.node.name\",\"size\":50,\"orderBy\":\"3\"}}],\"seriesParams\":[{\"data\":{\"id\":\"3\",\"label\":\"Disk Usage %\"},\"type\":\"histogram\",\"mode\":\"stacked\",\"drawLinesBetweenPoints\":true,\"showCircles\":true}],\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"timeRange\":{\"from\":\"now-24h\",\"to\":\"now\",\"mode\":\"relative\"},\"interval\":\"auto\"},\"aggs\":[]}",
+      "uiStateJSON": "{}",
+      "description": "TSVB chart of disk usage percentage per Elasticsearch node, calculated using bucket_script. Values above 85% indicate high disk usage.",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"metrics-elasticsearch.stack_monitoring*\",\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[]}"
+      }
+    }
+  }
+}
+{
+  "_id": "visualization:system-uptime",
+  "_type": "visualization",
+  "_source": {
+    "type": "visualization",
+    "updated_at": "2025-07-03T18:26:00.000Z",
+    "visualization": {
+      "title": "System Uptime per Node",
+      "visState": "{\"title\":\"System Uptime per Node\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMetricsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"elasticsearch.node.name\",\"size\":50,\"orderBy\":\"_term\"}},{\"id\":\"2\",\"enabled\":true,\"type\":\"max\",\"schema\":\"metric\",\"params\":{\"field\":\"elasticsearch.node.stats.jvm.uptime_in_millis\"}}]}",
+      "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":0,\"direction\":\"asc\"}}}}",
+      "description": "Table showing JVM uptime in milliseconds for each node",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"metrics-elasticsearch.stack_monitoring*\",\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[]}"
+      }
+    }
+  }
+}
