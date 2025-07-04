@@ -1,0 +1,48 @@
+Test the Alert Aggregation in Dev Tools:
+
+GET metrics-elasticsearch.stack_monitoring*/_search
+{
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "range": {
+            "@timestamp": {
+              "gte": "now-5m",
+              "lte": "now"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "aggs": {
+    "by_node": {
+      "terms": {
+        "field": "elasticsearch.node.name",
+        "size": 50
+      },
+      "aggs": {
+        "total_bytes": {
+          "max": {
+            "field": "elasticsearch.node.stats.fs.total.total_in_bytes"
+          }
+        },
+        "available_bytes": {
+          "max": {
+            "field": "elasticsearch.node.stats.fs.total.available_in_bytes"
+          }
+        },
+        "disk_usage_percent": {
+          "bucket_script": {
+            "buckets_path": {
+              "total": "total_bytes",
+              "available": "available_bytes"
+            },
+            "script": "params.total > 0 ? (params.total - params.available) / params.total * 100 : 0"
+          }
+        }
+      }
+    }
+  }
+}
