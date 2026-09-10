@@ -1,0 +1,49 @@
+{
+  "_id": "rule:elasticsearch-node-down-alert",
+  "_type": "rule",
+  "_source": {
+    "type": "rule",
+    "updated_at": "2026-09-10T06:00:00.000Z",
+    "rule": {
+      "name": "Elasticsearch Node Down Alert",
+      "rule_type": "metrics_alert",
+      "consumer": "alerts",
+      "enabled": true,
+      "schedule": {
+        "interval": "1m"
+      },
+      "actions": [
+        {
+          "id": "slack-connector",
+          "group": "metrics.threshold.fired",
+          "params": {
+            "message": "Elasticsearch NODE DOWN / missing monitoring data:\nCluster status: {{context.hits.0._source.elasticsearch.cluster.stats.status}}\nLive node count metric: {{context.value}} (expected 16)\nGroup: {{context.group}}\nTimestamp: {{context.timestamp}}\n\nIf OS patching is in progress this should be muted by elk_cluster_post_os_patching_restart."
+          }
+        }
+      ],
+      "params": {
+        "aggType": "custom",
+        "aggParams": {
+          "customMetric": {
+            "type": "agg",
+            "aggregation": "cardinality",
+            "field": "elasticsearch.node.name",
+            "id": "1"
+          }
+        },
+        "groupBy": "elasticsearch.cluster.name",
+        "threshold": [16],
+        "comparator": "<",
+        "timeSize": 5,
+        "timeUnit": "m",
+        "index": "metrics-elasticsearch.stack_monitoring*",
+        "metric": "customMetric"
+      },
+      "notify_when": "onActionGroupChange",
+      "tags": ["elasticsearch", "monitoring", "infrastructure", "maintenance-mute", "node-down"],
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"metrics-elasticsearch.stack_monitoring*\",\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[]}"
+      }
+    }
+  }
+}
