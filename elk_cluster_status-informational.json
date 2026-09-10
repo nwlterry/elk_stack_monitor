@@ -4,7 +4,8 @@
     "Elasticsearch",
     "Monitoring",
     "Infrastructure",
-    "Informational"
+    "Informational",
+    "maintenance-mute"
   ],
   "schedule": {
     "interval": "1m"
